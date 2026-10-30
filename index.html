@@ -1,0 +1,1961 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Roça Feliz</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Figtree:wght@500;700&display=swap"
+    />
+    <style>
+      [hidden] {
+        display: none !important;
+      }
+      html {
+        color-scheme: light;
+      }
+      body {
+        margin: 0;
+      }
+      :root {
+        --panel: #fff8e4;
+        --ink: #2c3a20;
+        --ink-soft: #5b6b49;
+        --line: #d7caa4;
+        --leaf: #4c9a38;
+        --coin: #e3a900;
+        --accent: #d9582b;
+        --hud: rgba(48, 32, 18, 0.88);
+        --hud-ink: #fff3d6;
+        --hud-line: #8a6238;
+        --soil: #9a6238;
+        --soil-dark: #6f4527;
+        --mound: #7d4c2a;
+        --lockg: #2f5d2c;
+        --lockg-hi: #3f7a38;
+        --font-display: "Bagel Fat One", "Trebuchet MS", sans-serif;
+        --font-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --panel: #2a3320;
+          --ink: #eef3de;
+          --ink-soft: #b2c096;
+          --line: #455336;
+          --leaf: #6cc152;
+          --coin: #f2c230;
+          --accent: #ff7a4a;
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme="dark"] {
+        --panel: #2a3320;
+        --ink: #eef3de;
+        --ink-soft: #b2c096;
+        --line: #455336;
+        --leaf: #6cc152;
+        --coin: #f2c230;
+        --accent: #ff7a4a;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        background: #6ec1ee;
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 15px;
+        overflow: hidden;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+      }
+      .app {
+        position: relative;
+        height: 100%;
+        min-height: 560px;
+        overflow: hidden;
+        user-select: none;
+        -webkit-user-select: none;
+        --sky1: #5bc0f0;
+        --sky2: #cdeeff;
+        --m1: #a6e24a;
+        --m2: #6cc02a;
+        --tree: #4fae2e;
+        --water: #4aa8d8;
+        --sand: #e6d49a;
+        --wheat: #e5cb4f;
+        --shade: 0;
+        --star: 0;
+        --cloud: 0.95;
+      }
+      .app[data-phase="dawn"] {
+        --sky1: #7aa7d9;
+        --sky2: #ffd2a8;
+        --m1: #a0d64e;
+        --m2: #6aae35;
+        --tree: #47a02e;
+        --shade: 0.07;
+        --cloud: 0.8;
+      }
+      .app[data-phase="dusk"] {
+        --sky1: #5a4a8a;
+        --sky2: #ffb27a;
+        --m1: #8fc440;
+        --m2: #5a9a2c;
+        --tree: #3a8a2c;
+        --shade: 0.16;
+        --cloud: 0.7;
+      }
+      .app[data-phase="night"] {
+        --sky1: #0b1633;
+        --sky2: #2a3b6e;
+        --m1: #3f7d3a;
+        --m2: #245a2a;
+        --tree: #245a2a;
+        --shade: 0.3;
+        --star: 1;
+        --cloud: 0.3;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+      .scene:not(.shade) {
+        background: linear-gradient(var(--sky1), var(--sky2) 15%);
+      }
+      .scene > * {
+        position: absolute;
+      }
+      .stars {
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 14%;
+        opacity: var(--star);
+        transition: opacity 1s;
+        background-image:
+          radial-gradient(1.5px 1.5px at 8% 18%, #fff, transparent),
+          radial-gradient(1.5px 1.5px at 22% 8%, #fff, transparent),
+          radial-gradient(2px 2px at 35% 26%, #fff, transparent),
+          radial-gradient(1.5px 1.5px at 48% 12%, #fff, transparent),
+          radial-gradient(2px 2px at 61% 22%, #fff, transparent),
+          radial-gradient(1.5px 1.5px at 74% 6%, #fff, transparent),
+          radial-gradient(1.5px 1.5px at 86% 20%, #fff, transparent),
+          radial-gradient(2px 2px at 94% 10%, #fff, transparent);
+      }
+      .orb {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .sun {
+        background: radial-gradient(
+          circle,
+          #fffbd0 30%,
+          #ffd23f 60%,
+          rgba(255, 210, 63, 0) 72%
+        );
+        box-shadow: 0 0 40px 14px rgba(255, 224, 120, 0.45);
+      }
+      .moon {
+        background: #f3f1e2;
+        box-shadow:
+          inset -9px -3px 0 0 #d8d6c4,
+          0 0 26px 6px rgba(220, 230, 255, 0.35);
+      }
+      .cloud {
+        top: 3%;
+        left: -170px;
+        width: 110px;
+        opacity: var(--cloud);
+        animation: drift 90s linear infinite;
+      }
+      .cloud.c2 {
+        top: 7%;
+        width: 84px;
+        animation-duration: 130s;
+        animation-delay: -50s;
+      }
+      .cloud.c3 {
+        top: 1%;
+        width: 120px;
+        animation-duration: 170s;
+        animation-delay: -110s;
+      }
+      @keyframes drift {
+        to {
+          transform: translateX(calc(100vw + 340px));
+        }
+      }
+      .meadow {
+        left: 0;
+        right: 0;
+        top: 12%;
+        bottom: 0;
+        background:
+          radial-gradient(
+            ellipse 30% 14% at 18% 30%,
+            rgba(255, 255, 255, 0.14),
+            transparent 70%
+          ),
+          radial-gradient(
+            ellipse 26% 12% at 82% 64%,
+            rgba(255, 255, 255, 0.12),
+            transparent 70%
+          ),
+          url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27220%27%20height%3D%27150%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%234f9a1a%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%20opacity%3D%27.55%27%3E%3Cpath%20d%3D%27M20%2040l-4-9M20%2040l1-11M20%2040l5-9%27%2F%3E%3Cpath%20d%3D%27M150%2028l-4-9M150%2028l1-11M150%2028l5-9%27%2F%3E%3Cpath%20d%3D%27M90%20110l-4-9M90%20110l1-11M90%20110l5-9%27%2F%3E%3Cpath%20d%3D%27M190%20120l-4-8M190%20120l1-10M190%20120l5-8%27%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2760%27%20cy%3D%2780%27%20r%3D%273%27%20fill%3D%27%23fff%27%2F%3E%3Ccircle%20cx%3D%2760%27%20cy%3D%2780%27%20r%3D%271.2%27%20fill%3D%27%23ffd93a%27%2F%3E%3Ccircle%20cx%3D%27170%27%20cy%3D%2770%27%20r%3D%273%27%20fill%3D%27%23ffe14d%27%2F%3E%3Ccircle%20cx%3D%27120%27%20cy%3D%2720%27%20r%3D%272.6%27%20fill%3D%27%23fff%27%2F%3E%3Ccircle%20cx%3D%2728%27%20cy%3D%27125%27%20r%3D%272.6%27%20fill%3D%27%23ff9ec4%27%2F%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2715%27%20r%3D%272.4%27%20fill%3D%27%23fff%27%2F%3E%3C%2Fsvg%3E")
+            0 0/220px 150px repeat,
+          linear-gradient(var(--m1), var(--m2));
+      }
+      .treeline {
+        left: 0;
+        width: 100%;
+        top: 8%;
+        height: 6%;
+      }
+      .house {
+        left: 2%;
+        top: 10.5%;
+        width: clamp(120px, 24vw, 220px);
+      }
+      .tree {
+        width: clamp(46px, 9vw, 78px);
+      }
+      .tree.t1 {
+        left: 30%;
+        top: 19%;
+      }
+      .tree.t2 {
+        left: 2%;
+        top: 41%;
+        width: clamp(54px, 10vw, 92px);
+      }
+      .sunf {
+        right: 0;
+        top: 12.5%;
+        width: clamp(76px, 10vw, 124px);
+      }
+      .fence {
+        height: clamp(24px, 3.6vw, 36px);
+        border-radius: 4px;
+        filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.18));
+        background:
+          repeating-linear-gradient(
+            90deg,
+            #8a5a2c 0 7px,
+            #c28444 7px 11px,
+            transparent 11px 46px
+          ),
+          linear-gradient(#e0a86a, #c48a4e) 0 28%/100% 14% no-repeat,
+          linear-gradient(#e0a86a, #c48a4e) 0 66%/100% 14% no-repeat;
+      }
+      .garden {
+        left: 1%;
+        bottom: 96px;
+        width: clamp(110px, 15vw, 170px);
+      }
+      .butter {
+        left: 11%;
+        bottom: 170px;
+        width: 34px;
+        animation: flutter 7s ease-in-out infinite;
+      }
+      .bw {
+        transform-origin: 20px 15px;
+        animation: flap 0.35s ease-in-out infinite alternate;
+      }
+      @keyframes flap {
+        to {
+          transform: scaleX(0.45);
+        }
+      }
+      @keyframes flutter {
+        0%,
+        100% {
+          transform: translate(0, 0) rotate(-8deg);
+        }
+        50% {
+          transform: translate(70px, -34px) rotate(10deg);
+        }
+      }
+      .sheep {
+        left: 88%;
+        top: 33%;
+        width: clamp(40px, 6vw, 62px);
+      }
+      .duck {
+        left: 83%;
+        top: 39%;
+        width: clamp(26px, 3.6vw, 38px);
+      }
+      .nest {
+        left: 92%;
+        top: 39.5%;
+        width: clamp(36px, 5vw, 56px);
+      }
+      .coop {
+        left: 80%;
+        top: 21.5%;
+        width: clamp(52px, 10vw, 84px);
+      }
+      .hen {
+        left: 64%;
+        top: 30%;
+        width: 38px;
+        border: 0;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+        animation: walk 34s ease-in-out infinite;
+      }
+      @keyframes walk {
+        0% {
+          transform: translateX(0) scaleX(1);
+        }
+        45% {
+          transform: translateX(8vw) scaleX(1);
+        }
+        50% {
+          transform: translateX(8vw) scaleX(-1);
+        }
+        95% {
+          transform: translateX(0) scaleX(-1);
+        }
+        100% {
+          transform: translateX(0) scaleX(1);
+        }
+      }
+      .hen svg,
+      .cow svg,
+      .sheep,
+      .duck,
+      .nest,
+      .coop {
+        filter: drop-shadow(1.5px 0 0 #3a2f2a) drop-shadow(-1.5px 0 0 #3a2f2a)
+          drop-shadow(0 1.5px 0 #3a2f2a) drop-shadow(0 -1.5px 0 #3a2f2a);
+      }
+      .flock {
+        inset: 0;
+        pointer-events: none;
+      }
+      .flock > * {
+        position: absolute;
+        pointer-events: auto;
+      }
+      .cow {
+        width: clamp(50px, 9vw, 74px);
+        border: 0;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+        animation: graze 5s ease-in-out infinite;
+      }
+      .cow svg {
+        display: block;
+        width: 100%;
+      }
+      @keyframes graze {
+        50% {
+          transform: translateY(-2px) rotate(-1.5deg);
+        }
+      }
+      .field {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .pw {
+        position: absolute;
+        width: var(--tw);
+        height: calc(var(--tw) / 2);
+      }
+      .pw {
+        --th: calc(var(--tw) * 0.16);
+      }
+      .pw.bed::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: calc(var(--tw) / 2 + var(--th));
+        clip-path: polygon(
+          2% calc(var(--tw) * 0.25),
+          50% calc(var(--tw) * 0.49),
+          98% calc(var(--tw) * 0.25),
+          98% calc(var(--tw) * 0.25 + var(--th)),
+          50% calc(var(--tw) * 0.49 + var(--th)),
+          2% calc(var(--tw) * 0.25 + var(--th))
+        );
+        background: linear-gradient(90deg, #6e4322 50%, #452712 50%);
+      }
+      .pw.bed::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: calc(var(--tw) / 2 + var(--th));
+        pointer-events: none;
+        clip-path: polygon(
+          2% calc(var(--tw) * 0.25),
+          50% calc(var(--tw) * 0.49),
+          50% calc(var(--tw) * 0.49 + var(--th)),
+          2% calc(var(--tw) * 0.25 + var(--th))
+        );
+        background: linear-gradient(
+          rgba(255, 255, 255, 0.12),
+          rgba(0, 0, 0, 0.2)
+        );
+      }
+      .tile {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+        clip-path: polygon(50% 2%, 98% 50%, 50% 98%, 2% 50%);
+        background:
+          linear-gradient(
+            150deg,
+            rgba(255, 220, 160, 0.28),
+            rgba(0, 0, 0, 0.18) 75%
+          ),
+          repeating-linear-gradient(0deg, #94602f 0 5px, #744724 5px 7px);
+      }
+      .tile:hover {
+        filter: brightness(1.15);
+      }
+      .tile.lock {
+        background: rgba(255, 255, 255, 0.16);
+        cursor: default;
+      }
+      .tile.lock.buy {
+        background: rgba(255, 255, 255, 0.32);
+        cursor: pointer;
+      }
+      .tile.armed,
+      .tile.lock.armed {
+        background: var(--accent);
+      }
+      .tile:focus-visible {
+        outline: 3px solid #fff;
+        background-color: #fff;
+      }
+      .ov {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .spr {
+        position: absolute;
+        left: 50%;
+        width: calc(var(--tw) * 0.9);
+        height: calc(var(--tw) * 0.9);
+        margin-left: calc(var(--tw) * -0.45);
+        top: calc(var(--tw) * -0.434);
+      }
+      .spr svg {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: block;
+        filter: drop-shadow(0 2px 1px rgba(30, 15, 0, 0.35));
+      }
+      .spr::before {
+        content: "";
+        position: absolute;
+        left: 16%;
+        right: 16%;
+        bottom: 3%;
+        height: 13%;
+        border-radius: 50%;
+        background: rgba(25, 12, 0, 0.32);
+        filter: blur(2px);
+      }
+      .spr.bob {
+        animation: bob 1.2s ease-in-out infinite;
+        transform-origin: 50% 85%;
+      }
+      @keyframes bob {
+        50% {
+          transform: translateY(-4px) scale(1.05);
+        }
+      }
+      .pbar {
+        position: absolute;
+        left: 28%;
+        right: 28%;
+        bottom: 20%;
+        height: 4px;
+        border-radius: 3px;
+        background: rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+      }
+      .pbar i {
+        display: block;
+        height: 100%;
+        background: #ffe27a;
+      }
+      .badge {
+        position: absolute;
+        left: 50%;
+        top: calc(var(--tw) * -0.5);
+        width: 18px;
+        height: 18px;
+        margin-left: 6px;
+        border-radius: 50%;
+        background: var(--coin);
+        color: #5a3d00;
+        font-weight: 700;
+        font-size: 12px;
+        line-height: 18px;
+        text-align: center;
+        border: 2px solid #fff;
+      }
+      .wd {
+        position: absolute;
+        left: 50%;
+        top: 18%;
+        width: calc(var(--tw) * 0.36);
+        margin-left: calc(var(--tw) * -0.18);
+      }
+      .lk {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
+        color: #2e5d0f;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+        gap: 2px;
+      }
+      .lk svg {
+        width: 12px;
+        height: 12px;
+      }
+      .float {
+        position: absolute;
+        pointer-events: none;
+        font-family: var(--font-display);
+        font-size: 20px;
+        color: #ffe27a;
+        -webkit-text-stroke: 1px #5a3d00;
+        animation: up 0.9s ease-out forwards;
+        z-index: 4;
+      }
+      @keyframes up {
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(-40px);
+        }
+      }
+      .shade {
+        inset: 0;
+        background: rgba(30, 20, 70, var(--shade));
+        pointer-events: none;
+        z-index: 5;
+      }
+      .hud {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 6;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px max(16px, env(safe-area-inset-right, 0px)) 0
+          max(16px, env(safe-area-inset-left, 0px));
+      }
+      .pill {
+        background: var(--hud);
+        color: var(--hud-ink);
+        border: 2px solid var(--hud-line);
+        border-radius: 14px;
+      }
+      .coins {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px 6px 8px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+      .coin {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--coin);
+        border: 3px solid #8a6200;
+        flex: none;
+      }
+      .who {
+        flex: 1;
+        min-width: 0;
+        padding: 5px 10px 7px;
+        text-align: center;
+      }
+      .who b {
+        display: block;
+        font-family: var(--font-display);
+        font-weight: 400;
+        font-size: 16px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .xpb {
+        position: relative;
+        height: 14px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+      }
+      .xpb i {
+        position: absolute;
+        inset: 0 auto 0 0;
+        background: linear-gradient(#8fe06a, #4c9a38);
+      }
+      .xpb span {
+        position: relative;
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 14px;
+        font-variant-numeric: tabular-nums;
+      }
+      .lvlb {
+        flex: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--coin);
+        color: #5a3d00;
+        border: 3px solid #8a6200;
+        font-family: var(--font-display);
+        text-align: center;
+        line-height: 30px;
+        font-size: 18px;
+        margin-left: -4px;
+      }
+      .help {
+        flex: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-family: var(--font-display);
+        font-size: 20px;
+        padding: 0;
+      }
+      .toast {
+        position: absolute;
+        z-index: 7;
+        top: 74px;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: calc(100% - 32px);
+        background: var(--hud);
+        color: var(--hud-ink);
+        border: 2px solid var(--hud-line);
+        border-radius: 12px;
+        padding: 8px 14px;
+        font-weight: 700;
+        text-align: center;
+        pointer-events: none;
+      }
+      .toast:empty {
+        display: none;
+      }
+      .tools {
+        position: absolute;
+        z-index: 6;
+        left: 0;
+        right: 0;
+        bottom: 80px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0
+          max(16px, env(safe-area-inset-left, 0px));
+      }
+      .tb {
+        background: var(--hud);
+        color: var(--hud-ink);
+        border: 2px solid var(--hud-line);
+        border-radius: 12px;
+        padding: 7px 11px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .tb[aria-pressed="true"] {
+        border-color: #ffd54a;
+        box-shadow: 0 0 0 2px rgba(255, 213, 74, 0.35);
+      }
+      .tb .dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid #fff3d6;
+      }
+      .tb:focus-visible,
+      .mi:focus-visible {
+        outline: 3px solid #ffd54a;
+        outline-offset: 2px;
+      }
+      .menu {
+        position: absolute;
+        z-index: 6;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--hud);
+        border-top: 3px solid var(--hud-line);
+      }
+      .menu-in {
+        display: flex;
+        overflow-x: auto;
+        gap: 2px;
+        scrollbar-width: none;
+        padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px
+          max(16px, env(safe-area-inset-left, 0px));
+      }
+      .menu-in::-webkit-scrollbar {
+        display: none;
+      }
+      .menu-in::before,
+      .menu-in::after {
+        content: "";
+        margin: auto;
+      }
+      .mi {
+        position: relative;
+        flex: none;
+        width: 68px;
+        border: 0;
+        background: none;
+        color: var(--hud-ink);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        padding: 4px 0;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .mi:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .mi svg {
+        width: 28px;
+        height: 28px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .bdg {
+        position: absolute;
+        top: 0;
+        right: 14px;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 9px;
+        background: #e5383b;
+        color: #fff;
+        font-size: 11px;
+        line-height: 18px;
+        text-align: center;
+        padding: 0 4px;
+      }
+      .overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 9;
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px max(16px, env(safe-area-inset-right, 0px)) 16px
+          max(16px, env(safe-area-inset-left, 0px));
+      }
+      .panel {
+        width: 100%;
+        max-width: 540px;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: var(--panel);
+        color: var(--ink);
+        border: 3px solid var(--hud-line);
+        border-radius: 18px;
+        overflow: hidden;
+      }
+      .phead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 14px;
+        border-bottom: 2px solid var(--line);
+      }
+      .phead h2 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-weight: 400;
+        font-size: 22px;
+      }
+      .pbody {
+        padding: 12px 14px 16px;
+        overflow-y: auto;
+        min-height: 0;
+      }
+      .btn {
+        border: 2px solid var(--line);
+        background: transparent;
+        color: var(--ink);
+        border-radius: 10px;
+        padding: 6px 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn.main {
+        background: var(--leaf);
+        border-color: var(--leaf);
+        color: #fff;
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .grid2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+      }
+      .card {
+        border: 2px solid var(--line);
+        border-radius: 12px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-start;
+      }
+      .card.sel {
+        border-color: var(--accent);
+      }
+      .card.off {
+        opacity: 0.55;
+      }
+      .chead {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        flex: none;
+      }
+      .meta,
+      .note {
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 13px;
+        line-height: 1.45;
+        font-variant-numeric: tabular-nums;
+      }
+      .item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .item:last-child {
+        border-bottom: 0;
+      }
+      .item > div {
+        min-width: 0;
+      }
+      .item strong {
+        display: block;
+      }
+      .acts {
+        display: flex;
+        gap: 6px;
+        flex: none;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .pb {
+        height: 8px;
+        border-radius: 5px;
+        background: var(--line);
+        overflow: hidden;
+        margin-top: 5px;
+      }
+      .pb i {
+        display: block;
+        height: 100%;
+        background: var(--leaf);
+      }
+      .me {
+        background: color-mix(in srgb, var(--leaf) 16%, transparent);
+        border-radius: 8px;
+        padding-inline: 8px;
+      }
+      .rk {
+        font-family: var(--font-display);
+        width: 28px;
+        flex: none;
+        text-align: center;
+      }
+      .log time {
+        color: var(--ink-soft);
+        font-size: 12px;
+        margin-right: 8px;
+        font-variant-numeric: tabular-nums;
+      }
+      .field-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+      .field-row input {
+        border: 2px solid var(--line);
+        background: transparent;
+        color: var(--ink);
+        border-radius: 10px;
+        padding: 8px 10px;
+        font: inherit;
+      }
+      .seg {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .seg .btn[aria-pressed="true"] {
+        border-color: var(--accent);
+      }
+      .ach.off {
+        opacity: 0.5;
+      }
+      p.txt {
+        margin: 0 0 10px;
+        line-height: 1.55;
+      }
+      .tring {
+        position: absolute;
+        z-index: 8;
+        pointer-events: none;
+        border: 3px solid #ffd54a;
+        border-radius: 12px;
+        box-shadow:
+          0 0 0 3px rgba(255, 213, 74, 0.3),
+          0 0 18px 4px rgba(255, 213, 74, 0.55);
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        50% {
+          transform: scale(1.06);
+        }
+      }
+      .tut {
+        position: absolute;
+        z-index: 8;
+        width: min(300px, calc(100% - 32px));
+        background: var(--panel);
+        color: var(--ink);
+        border: 3px solid var(--hud-line);
+        border-radius: 14px;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+      }
+      .tut small {
+        color: var(--ink-soft);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-size: 11px;
+      }
+      .tut p {
+        margin: 0;
+        line-height: 1.45;
+      }
+      .tut .acts {
+        justify-content: flex-end;
+      }
+      #wxfx {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 1.2s;
+      }
+      .app[data-wx="rain"] #wxfx {
+        opacity: 1;
+        animation: rain 0.6s linear infinite;
+        background:
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='120'%3E%3Cg stroke='%23cfe6ff' stroke-width='2' stroke-linecap='round' opacity='.75'%3E%3Cpath d='M10 5l-4 14M50 40l-4 14M80 15l-4 14M30 80l-4 14M68 95l-4 14M5 60l-4 14M45 105l-4 12'/%3E%3C/g%3E%3C/svg%3E"),
+          rgba(40, 60, 100, 0.2);
+      }
+      .app[data-wx="sun"] #wxfx {
+        opacity: 0.4;
+        background:
+          radial-gradient(
+            circle at 85% 6%,
+            rgba(255, 230, 120, 0.6),
+            transparent 55%
+          ),
+          rgba(255, 200, 60, 0.08);
+      }
+      @keyframes rain {
+        to {
+          background-position: -40px 120px;
+        }
+      }
+      .bfly {
+        position: absolute;
+        z-index: 4;
+        left: 0;
+        width: 44px;
+        height: 36px;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: pointer;
+        animation-duration: 13s;
+        animation-timing-function: linear;
+        animation-fill-mode: forwards;
+      }
+      .bfly svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        animation: wob 1.1s ease-in-out infinite;
+        filter: drop-shadow(0 0 6px #ffd93a);
+      }
+      @keyframes bfr {
+        from {
+          transform: translateX(-60px);
+        }
+        to {
+          transform: translateX(calc(100vw + 20px));
+        }
+      }
+      @keyframes bfl {
+        from {
+          transform: translateX(calc(100vw + 20px));
+        }
+        to {
+          transform: translateX(-60px);
+        }
+      }
+      @keyframes wob {
+        50% {
+          transform: translateY(-22px);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .cloud,
+        .hen,
+        .cow,
+        .river .w,
+        .spr.bob,
+        .float,
+        .tring,
+        .butter,
+        .bw,
+        .bfly svg,
+        #wxfx {
+          animation: none !important;
+        }
+      }
+      /* acabamento 3D */
+      .pill {
+        box-shadow:
+          0 3px 0 rgba(0, 0, 0, 0.4),
+          inset 0 2px 0 rgba(255, 255, 255, 0.16);
+        background-image: linear-gradient(
+          rgba(255, 255, 255, 0.08),
+          transparent 60%
+        );
+      }
+      .tb,
+      .btn {
+        box-shadow:
+          0 3px 0 rgba(0, 0, 0, 0.28),
+          inset 0 2px 0 rgba(255, 255, 255, 0.18);
+        transition:
+          transform 0.08s,
+          box-shadow 0.08s;
+      }
+      .tb {
+        background-image: linear-gradient(
+          rgba(255, 255, 255, 0.1),
+          transparent 60%
+        );
+      }
+      .tb:active,
+      .btn:active:not(:disabled) {
+        transform: translateY(2px);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.28);
+      }
+      .btn.main {
+        background-image: linear-gradient(
+          rgba(255, 255, 255, 0.22),
+          rgba(0, 0, 0, 0.08)
+        );
+      }
+      .coin {
+        background: radial-gradient(
+          circle at 35% 30%,
+          #fff1a6,
+          var(--coin) 55%,
+          #b98100
+        );
+        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+      }
+      .lvlb {
+        background: radial-gradient(
+          circle at 35% 30%,
+          #fff1a6,
+          var(--coin) 60%,
+          #b98100
+        );
+        box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+      }
+      .panel {
+        box-shadow:
+          0 8px 0 rgba(0, 0, 0, 0.28),
+          0 18px 40px rgba(0, 0, 0, 0.35),
+          inset 0 2px 0 rgba(255, 255, 255, 0.5);
+      }
+      .card {
+        box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1);
+      }
+      .menu {
+        box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.25);
+        background-image: linear-gradient(
+          rgba(255, 255, 255, 0.08),
+          transparent 50%
+        );
+      }
+      .meadow::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(
+            ellipse 80% 60% at 50% 45%,
+            rgba(255, 255, 240, 0.1),
+            transparent 70%
+          ),
+          linear-gradient(transparent 70%, rgba(0, 40, 0, 0.18));
+      }
+      .scare {
+        position: absolute;
+        z-index: 3;
+        border: 0;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+        transform-origin: 50% 95%;
+        animation: sway 4s ease-in-out infinite;
+        filter: drop-shadow(0 3px 2px rgba(20, 10, 0, 0.35));
+      }
+      .scare svg {
+        width: 100%;
+        display: block;
+      }
+      .scare:focus-visible {
+        outline: 3px solid #ffd54a;
+        border-radius: 8px;
+      }
+      @keyframes sway {
+        50% {
+          transform: rotate(2.5deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .scare {
+          animation: none;
+        }
+      }
+      .fly svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        filter: drop-shadow(0 2px 1px rgba(30, 15, 0, 0.35));
+      }
+      .gl {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: twk 1.6s ease-in-out infinite;
+      }
+      .gl.g2 {
+        animation-delay: -0.8s;
+      }
+      @keyframes twk {
+        50% {
+          opacity: 0.15;
+          transform: scale(0.5) rotate(45deg);
+        }
+      }
+      .hen {
+        width: 48px;
+      }
+      .hen svg,
+      .cow svg {
+        filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.3));
+      }
+      .hh {
+        transform-box: fill-box;
+        transform-origin: 30% 100%;
+        animation: peck 4s ease-in-out infinite;
+      }
+      @keyframes peck {
+        0%,
+        62%,
+        100% {
+          transform: rotate(0);
+        }
+        70% {
+          transform: rotate(28deg) translateY(3px);
+        }
+        76% {
+          transform: rotate(4deg);
+        }
+        82% {
+          transform: rotate(28deg) translateY(3px);
+        }
+        90% {
+          transform: rotate(0);
+        }
+      }
+      .ch {
+        transform-box: fill-box;
+        transform-origin: 10% 20%;
+        animation: graze2 6s ease-in-out infinite;
+      }
+      @keyframes graze2 {
+        0%,
+        55%,
+        100% {
+          transform: rotate(0);
+        }
+        68%,
+        85% {
+          transform: rotate(9deg) translateY(2px);
+        }
+      }
+      .tl {
+        transform-box: fill-box;
+        transform-origin: 90% 0;
+        animation: swish 2.6s ease-in-out infinite;
+      }
+      @keyframes swish {
+        50% {
+          transform: rotate(-14deg);
+        }
+      }
+      .er {
+        transform-box: fill-box;
+        transform-origin: 90% 50%;
+        animation: flick 5s ease-in-out infinite;
+      }
+      @keyframes flick {
+        0%,
+        90%,
+        100% {
+          transform: rotate(0);
+        }
+        94% {
+          transform: rotate(-16deg);
+        }
+        97% {
+          transform: rotate(4deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .hh,
+        .ch,
+        .tl,
+        .er {
+          animation: none;
+        }
+      }
+      .pond,
+      .rocks,
+      .fv {
+        display: none;
+      }
+      .f1 {
+        left: 56%;
+        right: 0;
+        top: 20.5%;
+      }
+      .f2 {
+        left: 56%;
+        right: 0;
+        top: 43.5%;
+      }
+      @media (min-width: 760px) {
+        .field {
+          left: 38%;
+        }
+        .house {
+          left: 42%;
+          top: 8%;
+        }
+        .pond {
+          display: block;
+          left: 1%;
+          top: 11%;
+          width: clamp(150px, 21vw, 300px);
+        }
+        .rocks {
+          display: block;
+          left: 0.5%;
+          bottom: 110px;
+          width: clamp(60px, 7vw, 110px);
+        }
+        .tree.t1 {
+          left: 62%;
+          top: 9%;
+        }
+        .tree.t2 {
+          left: 1%;
+          top: 50%;
+        }
+        .garden {
+          left: auto;
+          right: 4%;
+          bottom: 96px;
+        }
+        .f1 {
+          left: 74%;
+          right: 1%;
+          top: 22%;
+        }
+        .f2 {
+          left: 74%;
+          right: 1%;
+          top: 45%;
+        }
+        .fv {
+          display: block;
+          left: 74%;
+          top: 22%;
+          height: 23%;
+          width: clamp(24px, 3.6vw, 36px);
+          background:
+            repeating-linear-gradient(
+              0deg,
+              #8a5a2c 0 7px,
+              #c28444 7px 11px,
+              transparent 11px 46px
+            ),
+            linear-gradient(
+              90deg,
+              transparent 40%,
+              #d9a066 40% 60%,
+              transparent 60%
+            );
+        }
+        .coop {
+          left: 89%;
+          top: 24%;
+        }
+        .hen {
+          left: 79%;
+        }
+      }
+
+      /* gramado vivo */
+      .app {
+        --m1: #b9ee3c;
+        --m2: #78cc28;
+        --tree: #4fc02e;
+      }
+
+      /* terra escura estilo desenho */
+      .tile:not(.lock) {
+        background:
+          linear-gradient(
+            150deg,
+            rgba(255, 220, 160, 0.18),
+            rgba(0, 0, 0, 0.3) 75%
+          ),
+          repeating-linear-gradient(0deg, #6b4222 0 5px, #4f2e17 5px 7px);
+      }
+
+      /* canteiros bloqueados viram folhagem */
+      .tile.lock {
+        background:
+          repeating-linear-gradient(
+            60deg,
+            rgba(255, 255, 255, 0.25) 0 3px,
+            transparent 3px 10px
+          ),
+          radial-gradient(ellipse at 40% 30%, #92e25c, #3f9a2a 80%);
+      }
+      .tile.lock.buy {
+        filter: brightness(1.12);
+      }
+      .tile.lock.armed {
+        background: var(--accent);
+      }
+      .lk {
+        color: #1f4a0c;
+      }
+
+      /* contorno escuro em cada canteiro */
+      .pw {
+        filter: drop-shadow(1.5px 0 0 #2b3d10) drop-shadow(-1.5px 0 0 #2b3d10)
+          drop-shadow(0 1.5px 0 #2b3d10) drop-shadow(0 -1.5px 0 #2b3d10);
+      }
+
+      /* contorno nas plantas */
+      .spr svg {
+        filter: drop-shadow(1.2px 0 0 #2b2410) drop-shadow(-1.2px 0 0 #2b2410)
+          drop-shadow(0 1.2px 0 #2b2410) drop-shadow(0 -1.2px 0 #2b2410)
+          drop-shadow(0 2px 1px rgba(30, 15, 0, 0.35));
+      }
+
+      /* curral fechado (substitui as cercas soltas) */
+      .fence.f1,
+      .fence.f2,
+      .fence.fv {
+        display: none !important;
+      }
+      .pen {
+        left: 56%;
+        right: 1%;
+        top: 21%;
+        height: 26%;
+        border: 7px solid #b8793e;
+        border-radius: 8px;
+        background: rgba(150, 220, 70, 0.28);
+        box-shadow:
+          0 0 0 2.5px #3a2f2a,
+          inset 0 0 0 2.5px #3a2f2a,
+          0 5px 0 rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+      }
+      .pen::before {
+        content: "";
+        position: absolute;
+        inset: 38% -7px auto;
+        height: 6px;
+        background: #d9a066;
+        box-shadow: 0 0 0 2px #3a2f2a;
+      }
+      @media (min-width: 760px) {
+        .pen {
+          left: 74%;
+          top: 22%;
+          height: 26%;
+        }
+      }
+    </style>
+    <style>
+      /* mostra o espantalho no modo com fundo pintado (só depois de comprado) */
+      .app.bg .scare:not([hidden]) {
+        display: block !important;
+      }
+      @media (min-width: 760px) {
+        /* posição e tamanho no computador: ajuste à vontade */
+        .app.bg .scare {
+          width: 80px !important;
+        }
+      }
+    </style>
+    <style>
+      .app.bg .scare:not([hidden]) {
+        display: block !important;
+      }
+    </style>
+    <style>
+      /* container fica invisível e sem largura total */
+      #app .menu {
+        background: none !important;
+        background-image: none !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+        display: flex;
+        justify-content: center;
+        pointer-events: none; /* clicar ao lado da barra "passa" para o jogo */
+      }
+
+      /* a barra: só ela tem fundo e borda */
+      #app .menu-in {
+        pointer-events: auto;
+        width: max-content;
+        max-width: calc(100% - 16px);
+        padding: 6px 12px !important;
+        gap: 4px !important;
+        background: var(--hud);
+        background-image: linear-gradient(
+          rgba(255, 255, 255, 0.08),
+          transparent 60%
+        );
+        border: 2px solid var(--hud-line);
+        border-radius: 26px;
+        box-shadow:
+          0 3px 0 rgba(0, 0, 0, 0.35),
+          0 6px 14px rgba(0, 0, 0, 0.25);
+      }
+
+      #app .mi {
+        width: 70px !important;
+        padding: 3px 0 2px !important;
+        gap: 2px !important;
+      }
+
+      /* nomes de volta, embaixo de cada ícone */
+      #app .mi > span:not(.bdg) {
+        display: block !important;
+        max-width: 100%;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.15;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+      }
+
+      #app .mi img.mico {
+        width: 36px !important;
+        height: 36px !important;
+      }
+      #app .mi svg {
+        width: 30px !important;
+        height: 30px !important;
+      }
+
+      /* a bolinha de aviso fica no canto do ícone */
+      #app .bdg {
+        right: 14px !important;
+        top: 0 !important;
+      }
+
+      /* barra de ferramentas sobe um pouco, porque a barra de baixo ficou mais alta */
+      #app .tools {
+        bottom: 92px !important;
+      }
+    </style>
+    <link rel="stylesheet" href="mobile.css" />
+  </head>
+  <body>
+    <div class="app" id="app" data-phase="day">
+      <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+        <defs>
+          <linearGradient id="leafg" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#3f9a22" />
+            <stop offset="1" stop-color="#8bd84e" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="scene" aria-hidden="true">
+        <div class="stars"></div>
+        <div class="orb sun" id="sun"></div>
+        <div class="orb moon" id="moon" hidden></div>
+        <svg class="cloud" viewBox="0 0 120 50">
+          <g fill="#fff">
+            <ellipse cx="40" cy="32" rx="30" ry="14" />
+            <ellipse cx="70" cy="26" rx="32" ry="18" />
+            <ellipse cx="94" cy="34" rx="24" ry="12" />
+          </g>
+        </svg>
+        <svg class="cloud c2" viewBox="0 0 120 50">
+          <g fill="#fff">
+            <ellipse cx="40" cy="32" rx="30" ry="14" />
+            <ellipse cx="70" cy="26" rx="32" ry="18" />
+            <ellipse cx="94" cy="34" rx="24" ry="12" />
+          </g>
+        </svg>
+        <svg class="cloud c3" viewBox="0 0 120 50">
+          <g fill="#fff">
+            <ellipse cx="40" cy="32" rx="30" ry="14" />
+            <ellipse cx="70" cy="26" rx="32" ry="18" />
+            <ellipse cx="94" cy="34" rx="24" ry="12" />
+          </g>
+        </svg>
+        <div class="meadow"></div>
+        <svg
+          class="treeline"
+          id="treeline"
+          viewBox="0 0 1000 60"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        ></svg>
+        <svg
+          class="sunf"
+          id="sunf"
+          viewBox="0 0 120 90"
+          aria-hidden="true"
+        ></svg>
+        <svg class="pond" viewBox="0 0 200 90" aria-hidden="true">
+          <ellipse cx="100" cy="46" rx="98" ry="40" fill="#e9dfb8" />
+          <ellipse
+            cx="100"
+            cy="46"
+            rx="90"
+            ry="34"
+            fill="#4aa8d8"
+            stroke="#2f7fae"
+            stroke-width="3"
+          />
+          <ellipse cx="78" cy="38" rx="40" ry="10" fill="#fff" opacity=".18" />
+          <g fill="#5cc02e" stroke="#2f6a14" stroke-width="1.5">
+            <ellipse cx="130" cy="56" rx="10" ry="4" />
+            <ellipse cx="60" cy="58" rx="8" ry="3.5" />
+          </g>
+          <circle cx="130" cy="53" r="3" fill="#ff8fb8" />
+        </svg>
+        <svg class="rocks" viewBox="0 0 100 60" aria-hidden="true">
+          <g stroke="#3a2f2a" stroke-width="2.5">
+            <ellipse cx="35" cy="38" rx="30" ry="20" fill="#9a9a9a" />
+            <ellipse cx="68" cy="44" rx="24" ry="14" fill="#b4b4b4" />
+          </g>
+          <ellipse cx="28" cy="30" rx="12" ry="6" fill="#d0d0d0" />
+        </svg>
+        <svg class="house" viewBox="0 0 240 170">
+          <defs>
+            <linearGradient id="roofg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f26a44" />
+              <stop offset="1" stop-color="#b52f18" />
+            </linearGradient>
+            <linearGradient id="roof2g" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#de4b2e" />
+              <stop offset="1" stop-color="#9c2814" />
+            </linearGradient>
+            <linearGradient id="wallg" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#fffdf5" />
+              <stop offset="1" stop-color="#e6d9bb" />
+            </linearGradient>
+          </defs>
+          <ellipse
+            cx="120"
+            cy="156"
+            rx="112"
+            ry="8"
+            fill="#000"
+            opacity=".16"
+          />
+          <g stroke="#4a2f1c" stroke-width="3" stroke-linejoin="round">
+            <rect x="128" y="18" width="16" height="36" fill="#d8d2c6" />
+            <rect x="24" y="62" width="132" height="90" fill="url(#wallg)" />
+            <path d="M8 68 L90 12 L172 68Z" fill="url(#roofg)" />
+            <rect x="76" y="104" width="28" height="48" rx="3" fill="#a8683a" />
+            <rect x="34" y="78" width="26" height="24" fill="#8fd4f4" />
+            <rect x="120" y="78" width="26" height="24" fill="#8fd4f4" />
+            <rect x="170" y="104" width="58" height="48" fill="#fff4dc" />
+            <path d="M164 108 L199 78 L234 108Z" fill="url(#roof2g)" />
+            <path d="M188 124h22v28h-22z" fill="#6b4429" />
+          </g>
+          <path
+            d="M47 78v24M34 90h26M133 78v24M120 90h26"
+            stroke="#4a2f1c"
+            stroke-width="2"
+          />
+          <circle cx="97" cy="130" r="2.2" fill="#ffd54a" />
+        </svg>
+        <div class="fence f1"></div>
+        <div class="fence f2"></div>
+        <div class="fence fv"></div>
+        <svg class="tree t1" viewBox="0 0 80 110">
+          <rect
+            x="32"
+            y="60"
+            width="16"
+            height="46"
+            rx="4"
+            fill="#9a6a3a"
+            stroke="#4a2f1c"
+            stroke-width="2.5"
+          />
+          <circle cx="40" cy="38" r="30.5" fill="#2a6a18" />
+          <circle cx="22" cy="56" r="20.5" fill="#2a6a18" />
+          <circle cx="58" cy="56" r="20.5" fill="#2a6a18" />
+          <circle cx="40" cy="38" r="28" fill="var(--tree)" />
+          <circle cx="22" cy="56" r="18" fill="var(--tree)" />
+          <circle cx="58" cy="56" r="18" fill="var(--tree)" />
+          <circle cx="30" cy="28" r="9" fill="#fff" opacity=".2" />
+          <circle cx="18" cy="52" r="5" fill="#fff" opacity=".15" />
+        </svg>
+        <svg class="tree t2" viewBox="0 0 80 110">
+          <rect
+            x="32"
+            y="60"
+            width="16"
+            height="46"
+            rx="4"
+            fill="#9a6a3a"
+            stroke="#4a2f1c"
+            stroke-width="2.5"
+          />
+          <circle cx="40" cy="38" r="30.5" fill="#2a6a18" />
+          <circle cx="22" cy="56" r="20.5" fill="#2a6a18" />
+          <circle cx="58" cy="56" r="20.5" fill="#2a6a18" />
+          <circle cx="40" cy="38" r="28" fill="var(--tree)" />
+          <circle cx="22" cy="56" r="18" fill="var(--tree)" />
+          <circle cx="58" cy="56" r="18" fill="var(--tree)" />
+          <circle cx="30" cy="28" r="9" fill="#fff" opacity=".2" />
+          <circle cx="18" cy="52" r="5" fill="#fff" opacity=".15" />
+        </svg>
+        <svg
+          class="garden"
+          id="garden"
+          viewBox="0 0 170 110"
+          aria-hidden="true"
+        ></svg>
+        <svg class="butter" viewBox="0 0 40 30" aria-hidden="true">
+          <g class="bw">
+            <path
+              d="M20 15C8 0 0 6 4 16C6 22 14 22 20 15Z"
+              fill="#ff5a5a"
+              stroke="#6a1a1a"
+              stroke-width="1.5"
+            />
+            <path
+              d="M20 15C32 0 40 6 36 16C34 22 26 22 20 15Z"
+              fill="#ff8a3a"
+              stroke="#6a1a1a"
+              stroke-width="1.5"
+            />
+          </g>
+          <path
+            d="M20 8v15"
+            stroke="#4a2f1c"
+            stroke-width="2.4"
+            stroke-linecap="round"
+          />
+        </svg>
+        <svg class="sheep" viewBox="0 0 60 44">
+          <path
+            d="M16 40v-8M26 40v-8M38 40v-8M47 40v-8"
+            stroke="#3a2f2a"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+          <circle cx="20" cy="24" r="12" fill="#3a2f2a" />
+          <circle cx="31" cy="19" r="14" fill="#3a2f2a" />
+          <circle cx="42" cy="24" r="12" fill="#3a2f2a" />
+          <circle cx="30" cy="29" r="12" fill="#3a2f2a" />
+          <circle cx="20" cy="24" r="10" fill="#fff" />
+          <circle cx="31" cy="19" r="12" fill="#fff" />
+          <circle cx="42" cy="24" r="10" fill="#fff" />
+          <circle cx="30" cy="29" r="10" fill="#fff" />
+          <ellipse cx="51" cy="24" rx="6" ry="7.5" fill="#3a2f2a" />
+          <circle cx="53" cy="22" r="1.3" fill="#fff" />
+        </svg>
+        <svg class="duck" viewBox="0 0 40 32">
+          <ellipse cx="16" cy="22" rx="13" ry="8" fill="#ffd93a" />
+          <path
+            d="M8 20q6 8 14 0"
+            fill="none"
+            stroke="#e0a800"
+            stroke-width="2"
+          />
+          <circle cx="28" cy="11" r="7" fill="#ffd93a" />
+          <path d="M34 11l6 2-6 2z" fill="#ff8a1e" />
+          <circle cx="30" cy="9.5" r="1.3" fill="#222" />
+        </svg>
+        <svg class="nest" viewBox="0 0 60 30">
+          <ellipse
+            cx="30"
+            cy="20"
+            rx="26"
+            ry="8"
+            fill="#e8c060"
+            stroke="#8a6a1a"
+            stroke-width="2"
+          />
+          <path
+            d="M8 20l6-3M20 24l5-5M36 25l-3-6M50 20l-6-3"
+            stroke="#b8902a"
+            stroke-width="1.6"
+          />
+          <ellipse
+            cx="24"
+            cy="15"
+            rx="6"
+            ry="7.5"
+            fill="#fff4e0"
+            stroke="#8a6a1a"
+            stroke-width="1.6"
+            transform="rotate(-12 24 15)"
+          />
+          <ellipse
+            cx="37"
+            cy="16"
+            rx="6"
+            ry="7.5"
+            fill="#fff4e0"
+            stroke="#8a6a1a"
+            stroke-width="1.6"
+            transform="rotate(10 37 16)"
+          />
+        </svg>
+        <svg class="coop" viewBox="0 0 90 80" aria-hidden="true">
+          <ellipse cx="45" cy="74" rx="40" ry="5" fill="#000" opacity=".18" />
+          <rect x="10" y="34" width="70" height="38" fill="#c9854a" />
+          <path
+            d="M10 44h70M10 54h70M10 64h70"
+            stroke="#a96a36"
+            stroke-width="2"
+          />
+          <path d="M4 38 L45 8 L86 38Z" fill="#b5472f" />
+          <path
+            d="M4 38 L45 8 L86 38"
+            fill="none"
+            stroke="#7d2f1f"
+            stroke-width="3"
+          />
+          <rect x="36" y="48" width="18" height="24" rx="9" fill="#4a2f1c" />
+          <rect
+            x="62"
+            y="44"
+            width="12"
+            height="10"
+            fill="#f2d98a"
+            stroke="#7a5230"
+            stroke-width="2"
+          />
+        </svg>
+        <div class="flock" id="flock"></div>
+        <button
+          class="hen"
+          id="hen"
+          aria-label="Galinha"
+          style="pointer-events: auto"
+        >
+          <svg viewBox="0 0 40 36">
+            <path d="M12 30v5M24 30v5" stroke="#e08a1e" stroke-width="2" />
+            <ellipse cx="20" cy="22" rx="14" ry="10" fill="#fff" />
+            <path d="M8 18 Q4 10 10 12Z" fill="#fff" />
+            <circle cx="30" cy="12" r="7" fill="#fff" />
+            <circle cx="29" cy="4" r="3" fill="#d62828" />
+            <path d="M36 12l5 2-5 2z" fill="#e08a1e" />
+            <circle cx="32" cy="11" r="1.3" fill="#222" />
+          </svg>
+        </button>
+      </div>
+      <div class="field" id="field"></div>
+      <button class="scare" id="scare" aria-label="Espantalho" hidden></button>
+      <div
+        class="scene shade"
+        aria-hidden="true"
+        style="position: absolute"
+      ></div>
+      <header class="hud">
+        <div class="pill coins" title="Moedas">
+          <span class="coin"></span><span id="coins">0</span>
+        </div>
+        <div class="pill who">
+          <b id="farm">Meu Sítio</b>
+          <div class="xpb"><i id="xpbar"></i><span id="xptxt"></span></div>
+        </div>
+        <div class="lvlb" id="lvl">1</div>
+        <button class="pill help" id="helpb" aria-label="Ajuda">?</button>
+      </header>
+      <div id="wxfx" aria-hidden="true"></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <div class="tools" id="tools"></div>
+      <nav class="menu" aria-label="Menu do jogo">
+        <div class="menu-in" id="menu"></div>
+      </nav>
+      <div class="tring" id="tring" hidden></div>
+      <div
+        class="tut"
+        id="tut"
+        role="dialog"
+        aria-label="Tutorial"
+        hidden
+      ></div>
+      <div class="overlay" id="overlay" hidden>
+        <div
+          class="panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ptitle"
+        >
+          <div class="phead">
+            <h2 id="ptitle"></h2>
+            <button class="btn" id="pclose">Fechar</button>
+          </div>
+          <div class="pbody" id="pbody"></div>
+        </div>
+      </div>
+    </div>
+    <script src="jogo.js"></script>
+    <script src="casas.js"></script>
+    <script src="espantalho.js"></script>
+    <script src="curral.js"></script>
+    <script src="noite.js"></script>
+    <script src="icones.js"></script>
+    <script src="ambiente.js"></script>
+    <script src="andar.js"></script>
+    <script src="sementes.js"></script>
+    <script src="hud.js"></script>
+    <script src="cursor.js"></script>
+    <script src="bloqueio.js"></script>
+    <script src="entregas.js"></script>
+    <script src="remover.js"></script>
+    <script src="burro.js"></script>
+    <script src="porco.js"></script>
+    <script src="loja.js"></script>
+    <script src="inseticida.js"></script>
+    <script src="regador.js"></script>
+    <script src="menu-icones.js"></script>
+  </body>
+</html>
