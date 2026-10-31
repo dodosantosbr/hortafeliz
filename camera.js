@@ -9,7 +9,9 @@
 (function () {
   var app = document.getElementById("app");
   if (!app) return;
-  var MQ = window.matchMedia("(orientation: landscape) and (max-height: 520px)");
+  var MQ = window.matchMedia(
+    "(orientation: landscape) and (max-height: 520px)",
+  );
 
   var MIN = 1,
     MAX = 2.2,
@@ -54,10 +56,12 @@
 
   /* ---------- cenário dentro de um contêiner que recebe o zoom ---------- */
   function moverMundo() {
-    [".scene:not(.shade)", "#field", "#scare", "#placed"].forEach(function (sel) {
-      var el = app.querySelector(sel);
-      if (el && !cam.contains(el)) cam.appendChild(el);
-    });
+    [".scene:not(.shade)", "#field", "#scare", "#placed"].forEach(
+      function (sel) {
+        var el = app.querySelector(sel);
+        if (el && !cam.contains(el)) cam.appendChild(el);
+      },
+    );
   }
   function garantirCam() {
     if (cam) return;
@@ -106,14 +110,28 @@
     tx = Math.min(0, Math.max(W - W * s, tx));
     ty = Math.min(0, Math.max(H - H * s, ty));
   }
+  var tRaster = null;
   function aplicar() {
     if (!cam) return;
     var neutro = s <= 1.001;
     cam.style.transform = neutro
       ? ""
-      : "translate(" + tx.toFixed(1) + "px," + ty.toFixed(1) + "px) scale(" + s.toFixed(3) + ")";
+      : "translate(" +
+        tx.toFixed(1) +
+        "px," +
+        ty.toFixed(1) +
+        "px) scale(" +
+        s.toFixed(3) +
+        ")";
     app.classList.toggle("rf-zoomed", !neutro);
     btn.textContent = (neutro ? "1" : Math.round(s * 10) / 10) + "×";
+
+    /* durante o gesto: camada promovida (fluido). Ao parar: solta e repinta nítido */
+    app.classList.add("rf-gesto");
+    clearTimeout(tRaster);
+    tRaster = setTimeout(function () {
+      app.classList.remove("rf-gesto");
+    }, 250);
   }
   function zoomEm(c, s1) {
     s1 = Math.min(MAX, Math.max(MIN, s1));
@@ -157,7 +175,10 @@
     var fr = f && f.getBoundingClientRect();
     var c =
       fr && fr.width > 0
-        ? { x: fr.left + fr.width / 2 - ar.left, y: fr.top + fr.height / 2 - ar.top }
+        ? {
+            x: fr.left + fr.width / 2 - ar.left,
+            y: fr.top + fr.height / 2 - ar.top,
+          }
         : { x: W / 2, y: H / 2 };
     var wx = (c.x - tx) / s,
       wy = (c.y - ty) / s;
@@ -236,7 +257,9 @@
   function soltar(e) {
     if (!(e.pointerId in pts)) return;
     delete pts[e.pointerId];
-    if (modo) suprimirAte = Date.now() + 400; /* o "clique" depois do arrasto não conta */
+    if (modo)
+      suprimirAte =
+        Date.now() + 400; /* o "clique" depois do arrasto não conta */
     var k = ids();
     if (k.length === 0) modo = null;
     else if (k.length === 1) {
@@ -285,6 +308,8 @@
     limitar();
     aplicar();
   });
-  (MQ.addEventListener ? MQ.addEventListener.bind(MQ, "change") : MQ.addListener.bind(MQ))(estado);
+  (MQ.addEventListener
+    ? MQ.addEventListener.bind(MQ, "change")
+    : MQ.addListener.bind(MQ))(estado);
   estado();
 })();

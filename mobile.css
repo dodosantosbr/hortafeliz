@@ -447,19 +447,17 @@ body {
   }
 }
 
-/* ---------- 8. ZOOM DA CÂMERA SEM PISCAR ---------- */
+/* ---------- 8. ZOOM DA CÂMERA (nítido e sem piscar) ----------
+   - O #rfCam só ganha camada própria (will-change) DURANTE o gesto.
+     Parado, o navegador repinta o cenário nítido.
+     A classe .rf-gesto é ligada/desligada pelo camera.js.
+   - Nada de will-change / backface-visibility nos bichos: eles já têm
+     animação própria e isso causava piscadas.
+   - Sem sombras (filter) pesadas enquanto está com zoom. */
 @media (orientation: landscape) and (max-height: 520px) {
-  #rfCam {
+  #app.rf-gesto #rfCam {
     will-change: transform;
   }
-  #app.rf-zoomed .hen,
-  #app.rf-zoomed .cow,
-  #app.rf-zoomed .pi,
-  #app.rf-zoomed .pi img {
-    will-change: transform;
-    backface-visibility: hidden;
-  }
-  /* sem sombras pesadas enquanto está com zoom */
   #app.rf-zoomed .hen img,
   #app.rf-zoomed .cow img,
   #app.rf-zoomed .hen svg,
@@ -470,6 +468,7 @@ body {
     filter: none !important;
   }
 }
+
 /* ---------- 9. LOJA E ARMAZÉM NO CELULAR DEITADO ----------
    Painel mais largo, itens em colunas e tudo mais compacto,
    para sobrar pouca rolagem na vertical. */
@@ -546,6 +545,7 @@ body {
     height: 36px;
   }
 }
+
 /* ---------- 10. ENTREGAS: MAIS LARGO, PEDIDOS EM COLUNAS ---------- */
 
 /* ===== COMPUTADOR / TELA GRANDE ===== */

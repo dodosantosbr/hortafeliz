@@ -15,7 +15,7 @@
     window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   var V = "4"; /* mude ao trocar um PNG (evita cache) */
   var DUR_PULO = 0.45;
-  var PERTO_GALINHEIRO = true; /* false = não mexe na posição das galinhas/pintinho */
+  var PERTO_GALINHEIRO = false; /* false = não mexe na posição das galinhas/pintinho */
 
   /* Vaca no meio do cercado (o cercado faz parte do fundo.png, então é em % da tela).
      X maior = mais pra direita, Y maior = mais pra baixo. false = não mexe na vaca. */
