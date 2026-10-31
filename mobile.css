@@ -295,3 +295,120 @@ body {
     height: 24px !important;
   }
 }
+
+/* ---------- 6. MENUS RECOLHIDOS NO CELULAR (v4) ----------
+   Usa o mobile-ui.js. Só em tela de toque deitada. */
+#rfMenuBtn {
+  display: none;
+}
+@media (orientation: landscape) and (max-height: 520px) and (pointer: coarse) {
+  /* botão redondo do menu, canto inferior direito */
+  #rfMenuBtn {
+    display: flex;
+    position: absolute;
+    z-index: 6;
+    right: max(12px, env(safe-area-inset-right, 0px));
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--hud);
+    color: var(--hud-ink);
+    border: 2px solid var(--hud-line);
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+    opacity: 0.92;
+  }
+  #rfMenuBtn svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+  #rfMenuBtn .rf-dot {
+    display: none;
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #e5383b;
+    border: 2px solid #fff3d6;
+  }
+  #rfMenuBtn.rf-tem .rf-dot {
+    display: block;
+  }
+  #app.rf-menu-open #rfMenuBtn {
+    border-color: #ffd54a;
+  }
+
+  /* barra de baixo: escondida, aparece ao tocar no botão */
+  #app .menu {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    transform: translateY(150%);
+    opacity: 0;
+    transition:
+      transform 0.18s,
+      opacity 0.18s;
+  }
+  #app:not(.rf-menu-open) .menu {
+    visibility: hidden;
+  }
+  #app:not(.rf-menu-open) .menu-in {
+    pointer-events: none;
+  }
+  #app.rf-menu-open .menu {
+    transform: none;
+    opacity: 1;
+  }
+  /* aberta, pode ter ícones maiores (só ícones, sem nomes) */
+  #app .mi {
+    width: 44px !important;
+  }
+  #app .mi img.mico {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  #app .mi svg {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  /* ferramentas: só a ativa; tocar nela abre a fila */
+  #app .tools {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 4px;
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: 0;
+    pointer-events: none;
+  }
+  #app .tools .tb {
+    position: relative;
+    pointer-events: auto;
+  }
+  #app .tools:has(.tb[aria-pressed="true"]) .tb:not([aria-pressed="true"]) {
+    display: none;
+  }
+  #app.rf-tools-open .tools .tb {
+    display: flex !important;
+  }
+  /* setinha: avisa que dá para abrir */
+  #app:not(.rf-tools-open) .tools .tb[aria-pressed="true"]::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid #ffd54a;
+  }
+}
