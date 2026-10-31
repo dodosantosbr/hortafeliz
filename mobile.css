@@ -470,3 +470,155 @@ body {
     filter: none !important;
   }
 }
+/* ---------- 9. LOJA E ARMAZÉM NO CELULAR DEITADO ----------
+   Painel mais largo, itens em colunas e tudo mais compacto,
+   para sobrar pouca rolagem na vertical. */
+@media (orientation: landscape) and (max-height: 520px) {
+  /* painéis largos: Loja e Armazém */
+  #app .panel:has(.sh-tabs),
+  #app .panel:has(.chead .ico, .chead .dot) {
+    width: min(820px, 90vw);
+  }
+
+  /* ----- LOJA ----- */
+  #app .sh-tabs {
+    margin-bottom: 8px;
+  }
+  #app .sh-tab {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+  #app .sh-grid {
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 8px;
+  }
+  #app .sh-card {
+    padding: 6px 4px 8px;
+    gap: 4px;
+  }
+  #app .sh-name {
+    font-size: 11px;
+    min-height: 24px;
+  }
+  #app .sh-ico {
+    width: 52px;
+    height: 52px;
+  }
+  #app .sh-house {
+    height: 52px;
+  }
+  #app .sh-emo {
+    font-size: 34px;
+  }
+  #app .sh-buy {
+    min-width: 62px;
+    min-height: 34px;
+    padding: 3px 8px;
+    font-size: 12px;
+  }
+
+  /* ----- ARMAZÉM ----- */
+  #app .panel:has(.chead .ico, .chead .dot) .pbody {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 10px;
+    align-content: start;
+  }
+  /* "Total guardado" ocupa a linha toda */
+  #app .panel:has(.chead .ico, .chead .dot) .pbody > :last-child {
+    grid-column: 1 / -1;
+  }
+  #app .panel:has(.chead .ico, .chead .dot) .item {
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    gap: 6px;
+  }
+  #app .panel:has(.chead .ico, .chead .dot) .item strong {
+    font-size: 14px;
+  }
+  #app .panel:has(.chead .ico, .chead .dot) .btn {
+    min-height: 34px;
+    padding: 4px 9px;
+    font-size: 12px;
+  }
+  #app #pbody .chead .ico {
+    width: 36px;
+    height: 36px;
+  }
+}
+/* ---------- 10. ENTREGAS: MAIS LARGO, PEDIDOS EM COLUNAS ---------- */
+
+/* ===== COMPUTADOR / TELA GRANDE ===== */
+@media (min-width: 760px) and (min-height: 521px) {
+  #app .panel:has(.dl-head) {
+    width: min(1000px, 94vw) !important;
+    max-width: min(1000px, 94vw) !important;
+  }
+  #app .panel:has(.dl-head) .pbody {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 14px;
+    align-content: start;
+  }
+  /* o cabeçalho do caminhão ocupa a linha toda */
+  #app .panel:has(.dl-head) .dl-head {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+  }
+  #app .panel:has(.dl-head) .dl-card {
+    margin-bottom: 0;
+  }
+}
+
+/* ===== CELULAR DEITADO ===== */
+@media (orientation: landscape) and (max-height: 520px) {
+  #app .panel:has(.dl-head) {
+    width: min(820px, 90vw);
+  }
+  #app .panel:has(.dl-head) .pbody {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 10px;
+    align-content: start;
+  }
+  #app .panel:has(.dl-head) .dl-head {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+    padding: 6px 10px;
+    gap: 10px;
+  }
+  /* some a frase longa, fica só o título, a barra e o bônus */
+  #app .panel:has(.dl-head) .dl-info > span.note:first-of-type {
+    display: none;
+  }
+  #app .panel:has(.dl-head) .dl-truck {
+    width: 64px;
+  }
+  #app .panel:has(.dl-head) .dl-card {
+    margin-bottom: 0;
+    padding: 6px 8px;
+    gap: 8px;
+  }
+  #app .panel:has(.dl-head) .dl-crate {
+    width: 50px;
+    height: 50px;
+  }
+  #app .panel:has(.dl-head) .dl-crate.multi {
+    width: 76px;
+  }
+  #app .panel:has(.dl-head) .dl-crate.truck {
+    width: 70px;
+  }
+  #app .panel:has(.dl-head) .dl-line {
+    font-size: 13px;
+  }
+  #app .panel:has(.dl-head) .dl-line img {
+    width: 18px;
+    height: 18px;
+  }
+  #app .panel:has(.dl-head) .dl-acts .btn {
+    min-height: 32px;
+    padding: 3px 8px;
+    font-size: 12px;
+  }
+}

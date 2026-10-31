@@ -13,6 +13,8 @@
     Maçã: ["caixote_macas", "maca", "macieira"],
     Ovo: ["caixote_ovo", "ovo", null],
     Leite: ["caixote_leite", "leite", null],
+    Carne: ["carne", "carne", null],
+    "Carne de porco": ["carne_porco", "carne_porco", null],
   };
   function tenta(lista, ok) {
     (function next(i) {

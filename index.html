@@ -5,7 +5,10 @@
     <meta name="theme-color" content="#2b3a1c" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="Horta Feliz" />
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="pwa/apple-touch-icon.png" />
@@ -1600,6 +1603,138 @@
         bottom: 92px !important;
       }
     </style>
+    <style>
+      /* terra = sua imagem ./img/terra.png */
+      #app .pw.bed::before,
+      #app .pw.bed::after {
+        display: none !important;
+      }
+      #app .pw {
+        filter: none !important;
+      }
+
+      #app .tile:not(.lock) {
+        clip-path: none !important;
+        background: url("./img/terra.png") center / 100% 100% no-repeat !important;
+      }
+
+      /* terra seca: aparece quando a planta/árvore está seca */
+      #app .pw.dry .tile:not(.lock) {
+        background: url("./img/terra-seca.png") center / 100% 100% no-repeat !important;
+      }
+
+      #app .tile:not(.lock):hover {
+        filter: brightness(1.15);
+      }
+      #app .tile.armed:not(.lock) {
+        filter: brightness(1.3) saturate(1.5);
+      }
+      /* moldura de pedras: fica atrás de tudo da horta */
+      #app .field::before {
+        content: "";
+        position: absolute;
+        inset: -12% -9% -14% -9%; /* mais larga: as pedras ficam FORA dos canteiros */
+        background: url("./img/borda-horta.png") center / 100% 100% no-repeat;
+        pointer-events: none;
+        z-index: -1; /* garante que fica atrás das terras e plantas */
+      }
+
+      /* cria um contexto de camada para o -1 não sumir atrás do fundo */
+      #app .field {
+        isolation: isolate;
+      }
+      /* ========== TERRA ========== */
+      #app .pw.bed::before,
+      #app .pw.bed::after {
+        display: none !important;
+      }
+      #app .pw {
+        filter: none !important;
+      }
+      #app .tile:not(.lock) {
+        clip-path: none !important;
+        background: url("./img/terra.png") center / 100% 100% no-repeat !important;
+        transform: scale(1.04); /* <-- AJUSTE: junta/afasta as terras */
+        transform-origin: 50% 50%;
+      }
+      #app .pw.dry .tile:not(.lock) {
+        background: url("./img/terra-seca.png") center / 100% 100% no-repeat !important;
+      }
+      #app .tile:not(.lock):hover {
+        filter: brightness(1.15);
+      }
+      #app .tile.armed:not(.lock) {
+        filter: brightness(1.3) saturate(1.5);
+      }
+
+      /* ========== MOLDURA DE PEDRAS ========== */
+      #app .field {
+        isolation: isolate;
+      }
+      #app .field::before,
+      #app .field::after {
+        content: "";
+        position: absolute;
+        /* <-- AJUSTE: cima  lados  baixo  lados */
+        inset: -12% -9% -14% -9%;
+        background: url("./img/borda-horta.png") center / 100% 100% no-repeat;
+        pointer-events: none;
+      }
+      /* metade de trás: atrás das plantas */
+      #app .field::before {
+        z-index: -1;
+        clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+      }
+      /* metade da frente: por cima das plantas */
+      #app .field::after {
+        z-index: 50;
+        clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+      }
+      /* Armazém mais largo, itens em colunas (só tela grande) */
+      @media (min-width: 760px) and (min-height: 521px) {
+        #app .panel:has(.chead .ico, .chead .dot) {
+          width: min(1000px, 94vw) !important;
+          max-width: min(1000px, 94vw) !important;
+        }
+        #app .panel:has(.chead .ico, .chead .dot) .pbody {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          column-gap: 16px;
+          align-content: start;
+        }
+        /* o rodapé "Total guardado" ocupa a linha toda */
+        #app .panel:has(.chead .ico, .chead .dot) .pbody > :last-child {
+          grid-column: 1 / -1;
+        }
+        /* cada item vira um cartão */
+        #app .panel:has(.chead .ico, .chead .dot) .item {
+          border: 2px solid var(--line);
+          border-radius: 14px;
+          padding: 8px 12px;
+          margin-bottom: 8px;
+          background: color-mix(in srgb, var(--panel) 60%, #fff);
+          box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+        }
+        #app .panel:has(.chead .ico, .chead .dot) .item:last-child {
+          border-bottom: 2px solid var(--line);
+        }
+      }
+    </style>
+    <style>
+      /* Loja mais larga, só no computador / tela grande */
+      @media (min-width: 760px) and (min-height: 521px) {
+        #app .panel:has(.sh-tabs) {
+          width: min(1000px, 94vw) !important;
+          max-width: min(1000px, 94vw) !important;
+        }
+        #app .panel:has(.sh-tabs) .sh-grid {
+          grid-template-columns: repeat(
+            auto-fill,
+            minmax(140px, 1fr)
+          ) !important;
+        }
+      }
+    </style>
     <link rel="stylesheet" href="mobile.css" />
   </head>
   <body>
@@ -1968,5 +2103,6 @@
     <script src="pwa.js"></script>
     <script src="mobile-ui.js"></script>
     <script src="camera.js"></script>
+    <script src="cachorro.js"></script>
   </body>
 </html>

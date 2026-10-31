@@ -28,6 +28,7 @@
     "vaca",
     "burro",
     "porco",
+    "cachorro",
     "ovelha",
     "pato",
     "cabra",
@@ -217,7 +218,7 @@
         nb.outerHTML +
         "</div>";
     });
-    return out;
+    return out + (window.rfDogDeco ? window.rfDogDeco() : "");
   }
 
   function pLojaGrade() {

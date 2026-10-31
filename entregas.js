@@ -29,6 +29,31 @@
   var SKIP_WAIT = 15; /* segundos de espera ao trocar um pedido */
   var BONUS_EVERY = 5; /* bônus do caminhão a cada N entregas */
   var REWARD_MULT = 1.4; /* pedido paga 40% a mais que vender no armazém */
+  var HORA_MS =
+    60 * 60 * 1000; /* para TESTAR: 60 * 1000 (1 "hora" = 1 minuto) */
+  var ESPERAS_H = [1, 2, 3, 4]; /* esperas entre remessas, em horas */
+  var TURBO_H = 24; /* duração do modo rápido do ticket */
+
+  function fmtT(sec) {
+    sec = Math.max(0, Math.floor(sec));
+    var h = Math.floor(sec / 3600),
+      m = Math.floor((sec % 3600) / 60),
+      s = sec % 60;
+    function p(n) {
+      return (n < 10 ? "0" : "") + n;
+    }
+    return (h ? h + ":" : "") + p(m) + ":" + p(s);
+  }
+  function emTurbo() {
+    return ((S.deliv && S.deliv.fastUntil) || 0) > Date.now();
+  }
+  function fimDaRemessa() {
+    var D = S.deliv,
+      h = emTurbo() ? 1 : ESPERAS_H[(D.step || 0) % ESPERAS_H.length];
+    if (!emTurbo()) D.step = ((D.step || 0) + 1) % ESPERAS_H.length;
+    D.next = Date.now() + h * HORA_MS;
+    return h;
+  }
 
   var SLUGS = [
     "cenoura",
@@ -226,20 +251,26 @@
       xp: Math.max(2, Math.round(xp * 0.6)),
     };
   }
-  /* devolve true se algum pedido novo chegou */
+  /* devolve true se uma remessa nova chegou */
   function ensure() {
     var D = S.deliv;
     if (!D || !D.slots) D = S.deliv = { slots: [], n: 0 };
+    if (D.next === undefined) D.next = 0;
+    if (D.step === undefined) D.step = 0;
     var want = Math.min(SLOTS_MAX, 2 + Math.floor(S.lvl / 4)),
       now = Date.now(),
       ch = false;
-    while (D.slots.length < want) D.slots.push({ o: null, until: 0 });
-    D.slots.forEach(function (s) {
-      if (!s.o && now >= s.until) {
-        s.o = genOrder();
-        ch = true;
-      }
+    while (D.slots.length < want) D.slots.push({ o: null });
+    var vazia = D.slots.every(function (s) {
+      return !s.o;
     });
+    if (vazia && now >= D.next) {
+      D.slots.forEach(function (s) {
+        s.o = genOrder();
+      });
+      D.next = 0;
+      ch = true;
+    }
     return ch;
   }
   function canDo(o) {
@@ -308,12 +339,22 @@
       truck = pick(TRUCK_C),
       waitTruck = pick(TRUCK_WAIT),
       prog = D.n % BONUS_EVERY,
-      bonus = 100 + 10 * S.lvl;
+      bonus = 100 + 10 * S.lvl,
+      turbo = emTurbo(),
+      temPedido = D.slots.some(function (s) {
+        return s.o;
+      }),
+      esperaMostrada = false;
     var h =
       '<div class="dl-head"><div class="dl-truck">' +
       (truck ? '<img src="' + truck + '" alt="Caminhão">' : TRUCK_SVG) +
       '</div><div class="dl-info"><strong>Caminhão de entregas</strong>' +
-      '<span class="note">Entregue os pedidos com o que está no Armazém. Cada pedido paga mais que a venda normal.</span>' +
+      '<span class="note">' +
+      (turbo
+        ? "Modo rápido: remessas de 1 hora por mais " +
+          fmtT((D.fastUntil - now) / 1000)
+        : "Entregue todos os pedidos.") +
+      "</span>" +
       '<div class="pb"><i style="width:' +
       (100 * prog) / BONUS_EVERY +
       '%"></i></div>' +
@@ -325,18 +366,25 @@
       " moedas e 1 fertilizante</span></div></div>";
 
     D.slots.forEach(function (s, i) {
-      /* card de espera: caminhão cheio chegando com o próximo pedido */
       if (!s.o) {
+        if (temPedido || esperaMostrada) return;
+        esperaMostrada = true;
+        var tk = D.tickets || 0;
         h +=
           '<div class="dl-card wait"><div class="dl-crate truck">' +
           (waitTruck
             ? '<img src="' + waitTruck + '" alt="Caminhão a caminho">'
             : TRUCK_SVG.replace("<svg", '<svg style="opacity:.5"')) +
-          '</div><div class="dl-lines"><strong>Próximo pedido</strong><span class="note">O caminhão chega em <span data-until="' +
-          s.until +
+          '</div><div class="dl-lines"><strong>Próxima remessa</strong><span class="note">O caminhão chega em <span data-until="' +
+          D.next +
           '">' +
-          fmt(Math.max(0, (s.until - now) / 1000)) +
-          "</span>.</span></div></div>";
+          fmtT(Math.max(0, (D.next - now) / 1000)) +
+          '</span>.</span></div><div class="acts dl-acts">' +
+          '<button class="btn main" data-act="tkuse"' +
+          (tk ? "" : " disabled") +
+          ">Usar ticket (" +
+          tk +
+          ')</button><button class="btn" data-act="tkbuy">Comprar ticket</button></div></div>';
         return;
       }
       var o = s.o,
@@ -403,8 +451,13 @@
     S.stats.delivered = (S.stats.delivered || 0) + 1;
     S.deliv.n++;
     s.o = null;
-    s.until = Date.now() + (WAIT_MIN + Math.random() * WAIT_RAND) * 1000;
     var msg = "Entrega feita: +" + o.coins + " moedas e " + o.xp + " XP.";
+    if (
+      S.deliv.slots.every(function (x) {
+        return !x.o;
+      })
+    )
+      msg += " Próxima remessa em " + fimDaRemessa() + "h.";
     log("Você fez uma entrega e ganhou " + o.coins + " moedas.");
     if (S.deliv.n % BONUS_EVERY === 0) {
       var b = 100 + 10 * S.lvl;
@@ -422,9 +475,8 @@
     ensure();
     var s = S.deliv.slots[i];
     if (!s || !s.o) return;
-    s.o = null;
-    s.until = Date.now() + SKIP_WAIT * 1000;
-    toast("Pedido trocado. Outro chega em " + SKIP_WAIT + " s.");
+    s.o = genOrder();
+    toast("Pedido trocado.");
   }
 
   var _da = decoAct;
@@ -463,6 +515,43 @@
       return true;
     }
     return _da(a, b);
+  };
+
+  /* ===== TICKET: cole daqui para baixo ===== */
+  var _da2 = decoAct;
+  decoAct = function (a, b) {
+    if (a === "tkuse") {
+      ensure();
+      var D = S.deliv;
+      if (!(D.tickets > 0)) toast("Você não tem tickets.");
+      else if (
+        !D.slots.every(function (s) {
+          return !s.o;
+        })
+      )
+        toast("O ticket só vale enquanto o caminhão está a caminho.");
+      else {
+        D.tickets--;
+        D.next = 0;
+        D.fastUntil = Date.now() + TURBO_H * HORA_MS;
+        ensure();
+        toast("Ticket usado! Remessas de 1 hora por 24 horas.");
+      }
+      after();
+      return true;
+    }
+    if (a === "tkbuy") {
+      if (typeof window.rfPagarTicket === "function") {
+        window.rfPagarTicket(function (ok) {
+          if (!ok) return;
+          S.deliv.tickets = (S.deliv.tickets || 0) + 1;
+          toast("Ticket comprado!");
+          after();
+        });
+      } else toast("Pagamento ainda não configurado.");
+      return true;
+    }
+    return _da2(a, b);
   };
 
   /* selo com a quantidade de pedidos prontos no menu */
