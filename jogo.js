@@ -978,6 +978,12 @@ function animals(dt) {
     m = Math.floor(S.milkT / MILK_MS);
     S.milkT -= m * MILK_MS;
   }
+  var antes = S.eggsLaid || 0;
+  S.eggsLaid = antes + n;
+  if (antes < 2 && S.eggsLaid >= 2) {
+    toast("Nasceu um pintinho!");
+    log("Um pintinho nasceu no galinheiro.");
+  }
   S.prod[0] += n;
   S.prod[1] += m;
   if (dt < 5000) {
@@ -3191,6 +3197,7 @@ function bflySpawn() {
 
 /* início */
 S = load();
+if (S.eggsLaid === undefined) S.eggsLaid = S.hens > 0 ? 2 : 0;
 if (S.hens > 2) S.hens = 2;
 var today = new Date().toDateString();
 if (!S.welcomed) {
@@ -3428,7 +3435,7 @@ applyHouse();
       f: "animais/cachorro.png",
       d: [79, 58, 4.5],
       m: [21, 66, 12],
-      wander: 3,
+      wander: 1.5,
       say: "Au au!",
     },
     {
@@ -4246,10 +4253,38 @@ applyHouse();
 /* galinhas e pintinho ficam perto do galinheiro */
 (function () {
   function near() {
+    var chick = document.querySelector('.pi[data-id="pintinho"]');
+    if (chick)
+      chick.style.display =
+        S && S.coop && S.hens > 0 && (S.eggsLaid || 0) >= 2 ? "" : "none";
     var coop = document.querySelector("svg.coop");
     if (!coop || !S || !S.coop) return;
     var cr = coop.getBoundingClientRect();
     if (!cr.width) return;
+
+    /* referência: o contêiner da câmera (se existir) tem o zoom exato */
+    var cam = document.getElementById("rfCam"),
+      app = $("app"),
+      camR = cam ? cam.getBoundingClientRect() : null,
+      k = camR && app.clientWidth ? camR.width / app.clientWidth : 1;
+    if (!k || !isFinite(k)) k = 1;
+
+    /* converte um ponto da tela para coordenadas locais do cenário */
+    function localX(el, x) {
+      if (camR) return (x - camR.left) / k;
+      return x - el.offsetParent.getBoundingClientRect().left;
+    }
+    function localY(el, y) {
+      if (camR) return (y - camR.top) / k;
+      return y - el.offsetParent.getBoundingClientRect().top;
+    }
+    /* só grava se mudou mais de 0,5 px (evita tremer) */
+    function put(el, prop, v) {
+      var old = parseFloat(el.style.getPropertyValue(prop));
+      if (isNaN(old) || Math.abs(old - v) > 0.5)
+        el.style.setProperty(prop, v.toFixed(1) + "px", "important");
+    }
+
     var cx = cr.left + cr.width / 2;
 
     /* galinhas: a #hen + as do #flock, espalhadas logo abaixo do galinheiro */
@@ -4260,38 +4295,20 @@ applyHouse();
       return h && !h.hidden && h.offsetParent;
     });
     vis.forEach(function (h, i) {
-      var pr = h.offsetParent.getBoundingClientRect(),
-        w = h.offsetWidth || 40,
+      var w = h.offsetWidth || 40,
         hh = h.offsetHeight || 40,
         dx = (i - (vis.length - 1) / 2) * (cr.width * 0.3),
         row = i % 2 ? 0.1 : -0.05;
-      h.style.setProperty(
-        "left",
-        cx + dx - pr.left - w / 2 + "px",
-        "important",
-      );
-      h.style.setProperty(
-        "top",
-        cr.bottom - pr.top - hh * (0.75 + row) + "px",
-        "important",
-      );
+      put(h, "left", localX(h, cx + dx) - w / 2);
+      put(h, "top", localY(h, cr.bottom) - hh * (0.75 + row));
       h.style.setProperty("margin", "0", "important");
     });
 
     /* pintinho: ao lado do galinheiro, na altura do chão dele */
     var pi = document.querySelector('.pi[data-id="pintinho"]');
     if (pi && pi.offsetParent) {
-      var pp = pi.offsetParent.getBoundingClientRect();
-      pi.style.setProperty(
-        "left",
-        cr.right - pp.left - cr.width * 0.1 + "px",
-        "important",
-      );
-      pi.style.setProperty(
-        "top",
-        cr.bottom - pp.top - (pi.offsetHeight || 20) * 0.9 + "px",
-        "important",
-      );
+      put(pi, "left", localX(pi, cr.right - cr.width * 0.1));
+      put(pi, "top", localY(pi, cr.bottom) - (pi.offsetHeight || 20) * 0.9);
     }
   }
   setInterval(near, 400);

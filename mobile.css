@@ -412,3 +412,61 @@ body {
     border-bottom: 7px solid #ffd54a;
   }
 }
+
+/* ---------- 7. CELULAR DEITADO: posições e tamanhos ----------
+   Os celulares deitados têm mais de 760px de largura, então o jogo
+   os trata como "desktop". Estas regras corrigem só o layout deles.
+   Ajuste left/top (em %) e width (em vw) para mexer nos itens. */
+@media (orientation: landscape) and (min-width: 760px) and (max-height: 520px) {
+  /* galinheiro embaixo, à esquerda da horta */
+  #app.bg svg.coop {
+    left: 7% !important;
+    top: 50% !important;
+    width: 8vw !important;
+  }
+
+  /* casinha e cachorro juntos, sem cobrir a casa */
+  #app .pi[data-id="casinha_cachorro"] {
+    left: 60% !important;
+    top: 14% !important;
+    width: 4.5vw !important;
+  }
+  #app .pi[data-id="cachorro"] {
+    left: 62% !important;
+    top: 17% !important;
+    width: 3vw !important;
+  }
+
+  /* vacas e galinhas menores */
+  #app .flock .cow {
+    width: 5.5vw !important;
+  }
+  #app #hen,
+  #app .flock .hen {
+    width: 3.2vw !important;
+  }
+}
+
+/* ---------- 8. ZOOM DA CÂMERA SEM PISCAR ---------- */
+@media (orientation: landscape) and (max-height: 520px) {
+  #rfCam {
+    will-change: transform;
+  }
+  #app.rf-zoomed .hen,
+  #app.rf-zoomed .cow,
+  #app.rf-zoomed .pi,
+  #app.rf-zoomed .pi img {
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+  /* sem sombras pesadas enquanto está com zoom */
+  #app.rf-zoomed .hen img,
+  #app.rf-zoomed .cow img,
+  #app.rf-zoomed .hen svg,
+  #app.rf-zoomed .cow svg,
+  #app.rf-zoomed .pi img,
+  #app.rf-zoomed svg.coop,
+  #app.rf-zoomed .scare {
+    filter: none !important;
+  }
+}

@@ -5,7 +5,11 @@
 (function () {
   /* Area do curral em % da tela: [esquerda, topo, largura, altura].
      d = computador, m = celular. */
-  var CURRAL = { d: [74, 24, 22, 22], m: [56, 24, 42, 22] };
+  var CURRAL = {
+    d: [74, 24, 22, 22],
+    m: [56, 24, 42, 22],
+    l: [76, 38, 20, 26],
+  };
 
   /* Posicao de cada vaca dentro da area (0 a 1 do espaco livre): [x, y] */
   var SLOTS = [
@@ -22,7 +26,9 @@
   } catch (e) {}
 
   function mode() {
-    return window.innerWidth >= 760 ? "d" : "m";
+    var w = window.innerWidth;
+    if (w >= 760 && window.innerHeight <= 520) return "l";
+    return w >= 760 ? "d" : "m";
   }
   function zone() {
     return LOCAL[mode()] || CURRAL[mode()];
@@ -96,6 +102,7 @@
         JSON.stringify({
           d: round(LOCAL.d || CURRAL.d),
           m: round(LOCAL.m || CURRAL.m),
+          l: round(LOCAL.l || CURRAL.l),
         }) +
         ";";
     };
