@@ -23,6 +23,10 @@
 (function () {
   /* ================= CONFIGURAÇÃO ================= */
   var V = "2"; /* mude ao trocar um PNG (evita cache) */
+  var SHEET_FRAMES = 6; /* quadros do sprite sheet (em uma linha) */
+  var SHEET_FPS = 8; /* velocidade da animação */
+  var SHEET_W = 0,
+    SHEET_H = 0; /* preenchido ao carregar a imagem */
   var SLOTS_MAX = 5; /* máximo de pedidos ao mesmo tempo */
   var WAIT_MIN = 45,
     WAIT_RAND = 30; /* segundos até chegar um pedido novo */
@@ -143,6 +147,10 @@
       var i = new Image();
       i.onload = function () {
         IMG[p] = true;
+        if (p === TRUCK_SHEET) {
+          SHEET_W = i.naturalWidth;
+          SHEET_H = i.naturalHeight;
+        }
         if (open === "entregas") renderPanel();
       };
       i.src = "img/" + p + "?v=" + V;
@@ -157,6 +165,8 @@
   SLUGS.forEach(function (s) {
     all = all.concat(crateC(s), iconC(s));
   });
+  var TRUCK_SHEET = "caminhao_sheet.png";
+  all.push(TRUCK_SHEET);
   preload(all);
 
   /* ================= ITENS ================= */
@@ -332,6 +342,27 @@
     );
   }
 
+  function truckAnim() {
+    var n = SHEET_FRAMES;
+    return (
+      '<div class="truck-anim" style="background-image:url(img/' +
+      TRUCK_SHEET +
+      "?v=" +
+      V +
+      ");background-size:" +
+      n * 100 +
+      "% 100%;aspect-ratio:" +
+      SHEET_W / n +
+      "/" +
+      SHEET_H +
+      ";animation:rf-truck " +
+      n / SHEET_FPS +
+      "s steps(" +
+      n +
+      ',jump-none) infinite"></div>'
+    );
+  }
+
   function pEntregas2() {
     ensure();
     var D = S.deliv,
@@ -347,7 +378,11 @@
       esperaMostrada = false;
     var h =
       '<div class="dl-head"><div class="dl-truck">' +
-      (truck ? '<img src="' + truck + '" alt="Caminhão">' : TRUCK_SVG) +
+      (IMG[TRUCK_SHEET] && SHEET_W
+        ? truckAnim()
+        : truck
+          ? '<img src="' + truck + '" alt="Caminhão">'
+          : TRUCK_SVG) +
       '</div><div class="dl-info"><strong>Caminhão de entregas</strong>' +
       '<span class="note">' +
       (turbo
@@ -372,9 +407,11 @@
         var tk = D.tickets || 0;
         h +=
           '<div class="dl-card wait"><div class="dl-crate truck">' +
-          (waitTruck
-            ? '<img src="' + waitTruck + '" alt="Caminhão a caminho">'
-            : TRUCK_SVG.replace("<svg", '<svg style="opacity:.5"')) +
+          (IMG[TRUCK_SHEET] && SHEET_W
+            ? truckAnim()
+            : waitTruck
+              ? '<img src="' + waitTruck + '" alt="Caminhão a caminho">'
+              : TRUCK_SVG.replace("<svg", '<svg style="opacity:.5"')) +
           '</div><div class="dl-lines"><strong>Próxima remessa</strong><span class="note">O caminhão chega em <span data-until="' +
           D.next +
           '">' +
@@ -582,6 +619,8 @@
   /* ================= ESTILO ================= */
   var st = document.createElement("style");
   st.textContent =
+    ".truck-anim{width:100%;background-repeat:no-repeat;background-position:0 0;filter:drop-shadow(0 3px 2px rgba(0,0,0,.3))}" +
+    "@keyframes rf-truck{from{background-position:0 0}to{background-position:100% 0}}" +
     /* cabeçalho do caminhão */
     ".dl-head{display:flex;align-items:center;gap:12px;padding:10px;border:2px solid var(--line);border-radius:12px;margin-bottom:10px;background:color-mix(in srgb,var(--leaf) 10%,transparent)}" +
     ".dl-truck{width:92px;flex:none}" +

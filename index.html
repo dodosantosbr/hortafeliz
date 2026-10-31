@@ -1667,6 +1667,28 @@
         filter: brightness(1.3) saturate(1.5);
       }
 
+      /* ========== GRAMA (canteiros bloqueados), encaixada no losango da terra ========== */
+      #app .pw:not(.bed)::before,
+      #app .pw:not(.bed)::after {
+        display: none !important;
+      }
+      #app .tile.lock {
+        clip-path: none !important;
+        background-image: url("./img/grama.png") !important;
+        background-repeat: no-repeat !important;
+        background-color: transparent !important;
+        background-size: calc(var(--tw) * 0.94) calc(var(--tw) * 0.655) !important;
+        background-position: calc(var(--tw) * 0.029) calc(var(--tw) * -0.084) !important;
+        transform: scale(1.07); /* igual à terra */
+        transform-origin: 50% 50%;
+      }
+      #app .tile.lock:hover {
+        filter: brightness(1.15);
+      }
+      #app .tile.lock.armed {
+        filter: brightness(1.3) saturate(1.5);
+      }
+
       /* ========== MOLDURA DE PEDRAS ========== */
       #app .field {
         isolation: isolate;
@@ -2104,5 +2126,6 @@
     <script src="mobile-ui.js"></script>
     <script src="camera.js"></script>
     <script src="cachorro.js"></script>
+    <script src="missoes-diarias.js"></script>
   </body>
 </html>
