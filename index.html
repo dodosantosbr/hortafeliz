@@ -1633,7 +1633,7 @@
       #app .field::before {
         content: "";
         position: absolute;
-        inset: -12% -9% -14% -9%; /* mais larga: as pedras ficam FORA dos canteiros */
+        inset: -16% -8.6% -15% -8.6%; /* mais larga: as pedras ficam FORA dos canteiros */
         background: url("./img/borda-horta.png") center / 100% 100% no-repeat;
         pointer-events: none;
         z-index: -1; /* garante que fica atrás das terras e plantas */
@@ -1698,7 +1698,7 @@
         content: "";
         position: absolute;
         /* <-- AJUSTE: cima  lados  baixo  lados */
-        inset: -12% -9% -14% -9%;
+        inset: -10% -7% -12% -7%;
         background: url("./img/borda-horta.png") center / 100% 100% no-repeat;
         pointer-events: none;
       }
@@ -1710,7 +1710,7 @@
       /* metade da frente: por cima das plantas */
       #app .field::after {
         z-index: 50;
-        clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+        clip-path: polygon(0 50%, 50% 50%, 50% 9%, 41% 9%, 41% 0, 61% 0, 61% 9%, 50% 9%, 50% 50%, 100% 50%, 100% 100%, 0 100%);
       }
       /* Armazém mais largo, itens em colunas (só tela grande) */
       @media (min-width: 760px) and (min-height: 521px) {
@@ -1755,6 +1755,15 @@
             minmax(140px, 1fr)
           ) !important;
         }
+      }
+
+      /* AJUSTE FINAL DA MOLDURA */
+      #app #field.field::before,
+      #app #field.field::after {
+        inset: -16% -8.6% -15% -8.6% !important;
+        background-size: 100% 100% !important;
+        transform: scale(1, 0.9) !important;
+        transform-origin: 50% 50% !important;
       }
     </style>
     <link rel="stylesheet" href="mobile.css" />
@@ -2127,5 +2136,8 @@
     <script src="camera.js"></script>
     <script src="cachorro.js"></script>
     <script src="missoes-diarias.js"></script>
+    <script src="almofada.js"></script>
+    <script src="ovelha.js"></script>
+    <script src="placa.js"></script>
   </body>
 </html>

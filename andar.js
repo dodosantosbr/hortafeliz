@@ -94,6 +94,10 @@
     cabra: { parado: { n: 4, fps: 4 }, pastar: { n: 6, fps: 6, voltas: 3 } },
     burro: { parado: { n: 4, fps: 4 }, pastar: { n: 6, fps: 6, voltas: 3 } },
     ovelha: { parado: { n: 4, fps: 4 }, pastar: { n: 6, fps: 6, voltas: 3 } },
+    ovelha_pelada: {
+      parado: { n: 4, fps: 4 },
+      pastar: { n: 6, fps: 6, voltas: 3 },
+    },
     gato: { parado: { n: 4, fps: 4 }, dormir: { n: 2, fps: 1.5 } },
     galinha: {
       parado: { n: 4, fps: 4 },
@@ -266,6 +270,22 @@
     return b;
   }
   function atualizaQuadros(b, dt, noite) {
+    /* ovelha: usa as imagens sem lã enquanto a lã cresce */
+    if (
+      b.el.dataset.id === "ovelha" &&
+      EST.ovelha_pelada &&
+      EST.ovelha_pelada.parado
+    ) {
+      var pelada =
+        typeof S !== "undefined" &&
+        S.ovelha &&
+        Date.now() < (S.ovelha.next || 0);
+      var alvoEst = pelada ? EST.ovelha_pelada : EST.ovelha;
+      if (b.est !== alvoEst) {
+        b.est = alvoEst;
+        troca(b, alvoEst[b.nome] ? b.nome : "parado");
+      }
+    }
     var alvo = noite ? (b.est.dormir ? "dormir" : "parado") : null;
     if (alvo && b.nome !== alvo) troca(b, alvo);
     if (!alvo && b.nome === "dormir") troca(b, "parado");
