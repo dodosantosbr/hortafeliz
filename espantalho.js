@@ -8,7 +8,7 @@
   /* ajustes (em "canteiros": 1 = largura de um canteiro) */
   var TAMANHO = 0.7; /* largura do espantalho */
   var DX = -0.1; /* negativo = mais para a esquerda */
-  var DY = -0.15; /* negativo = mais para cima */
+  var DY = -0.47; /* negativo = mais para cima */
   var PROP = 512 / 388; /* altura / largura do PNG */
 
   function pos() {

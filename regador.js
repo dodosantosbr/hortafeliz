@@ -12,6 +12,9 @@
      img/arvores/arvore_mangueira_seca.png (e as outras árvores)
    Se a imagem seca não existir, o jogo usa o filtro cinza no lugar.
 
+   Gota de "precisa de água": img/gota.png (se não existir, usa a gota
+   desenhada em código).
+
    Carregar POR ÚLTIMO no index.html:  <script src="regador.js"></script>
    =========================================================== */
 (function () {
@@ -23,6 +26,10 @@
     3 * 60 * 1000; /* quanto tempo a cultura fica molhada depois de regada */
   var COLHEITAS_ARVORE = 2; /* a árvore seca depois dessa quantidade de colheitas */
   var V = "2";
+
+  /* gota acima da planta seca */
+  var GOTA_SRC = "img/gota.png?v=1";
+  var GOTA_LARGURA = 0.16; /* largura da gota, em fração da largura do canteiro */
 
   /* ---------- migração: culturas que já existiam contam como regadas ---------- */
   if (!S.waterV) {
@@ -81,9 +88,14 @@
   /* ---------- CSS ---------- */
   var st = document.createElement("style");
   st.textContent =
-    ".wtr{position:absolute;left:50%;top:calc(var(--tw)*-.2);width:calc(var(--tw)*.3);min-width:18px;" +
-    "margin-left:calc(var(--tw)*-.15);z-index:8;pointer-events:none;animation:wtrbob 1.1s ease-in-out infinite}" +
-    ".wtr svg{display:block;width:100%;height:auto;filter:drop-shadow(0 2px 1px rgba(0,0,0,.4))}" +
+    ".wtr{position:absolute;left:50%;top:calc(var(--tw)*-.2);width:calc(var(--tw)*" +
+    GOTA_LARGURA +
+    ");min-width:12px;" +
+    "margin-left:calc(var(--tw)*-" +
+    GOTA_LARGURA / 2 +
+    ");z-index:8;pointer-events:none;animation:wtrbob 1.1s ease-in-out infinite}" +
+    ".wtr svg,.wtr img{display:block;width:100%;height:auto;filter:drop-shadow(0 2px 1px rgba(0,0,0,.4));" +
+    "-webkit-user-drag:none;user-select:none}" +
     "@keyframes wtrbob{50%{transform:translateY(-4px)}}" +
     /* sem imagem seca: usa filtro. Com imagem seca: sem filtro */
     ".pw.dry:not(.dryimg) .ov .spr{opacity:.72;filter:grayscale(.55) sepia(.25)}" +
@@ -91,8 +103,25 @@
     "@media (prefers-reduced-motion:reduce){.wtr{animation:none}}";
   document.head.appendChild(st);
 
-  var DROP =
+  /* gota reserva, desenhada em código (usada se img/gota.png não existir) */
+  var DROP_SVG =
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C12 2 5 10 5 15a7 7 0 0014 0C19 10 12 2 12 2z" fill="#5ab8f0" stroke="#1d5a8a" stroke-width="1.6" stroke-linejoin="round"/><ellipse cx="9.5" cy="14" rx="1.6" ry="2.6" fill="#fff" opacity=".75"/></svg>';
+  var DROP_IMG =
+    '<img src="' + GOTA_SRC + '" alt="" draggable="false" aria-hidden="true">';
+  var DROP = DROP_SVG;
+
+  /* usa a imagem da gota se ela existir */
+  (function () {
+    var im = new Image();
+    im.onload = function () {
+      DROP = DROP_IMG;
+      /* troca as gotas que já estão na tela */
+      document.querySelectorAll(".wtr").forEach(function (el) {
+        el.innerHTML = DROP;
+      });
+    };
+    im.src = GOTA_SRC;
+  })();
 
   /* ---------- regar ---------- */
   function regar(i) {
