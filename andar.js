@@ -547,17 +547,18 @@
       },
     );
     if (!cows.length) return;
-    var ar = ap.getBoundingClientRect();
+    /* medidas locais do cenário (não mudam com o zoom da câmera) */
+    var W = ap.clientWidth,
+      H = ap.clientHeight;
     cows.forEach(function (c, i) {
-      var pr = c.offsetParent.getBoundingClientRect(),
-        w = c.offsetWidth || 60,
+      var w = c.offsetWidth || 60,
         h = c.offsetHeight || 50,
-        dx = (i - (cows.length - 1) / 2) * (AFASTA / 100) * ar.width,
-        dy = (i % 2 ? 1 : -1) * (cows.length > 1 ? 0.02 * ar.height : 0),
-        cx = ar.left + (CERCADO_X / 100) * ar.width + dx,
-        cy = ar.top + (CERCADO_Y / 100) * ar.height + dy;
-      c.style.setProperty("--vx", cx - pr.left - w / 2 + "px");
-      c.style.setProperty("--vy", cy - pr.top - h / 2 + "px");
+        dx = (i - (cows.length - 1) / 2) * (AFASTA / 100) * W,
+        dy = (i % 2 ? 1 : -1) * (cows.length > 1 ? 0.02 * H : 0),
+        cx = (CERCADO_X / 100) * W + dx,
+        cy = (CERCADO_Y / 100) * H + dy;
+      c.style.setProperty("--vx", cx - w / 2 + "px");
+      c.style.setProperty("--vy", cy - h / 2 + "px");
     });
   }
 
